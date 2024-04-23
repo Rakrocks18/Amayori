@@ -2,25 +2,26 @@
 
 #include <string>
 #include <vector>
+#include <optional>
 
 enum class TokenType {
-    exit,
-    int_lit,
-    semi,
-    open_paren,
-    close_paren,
-    ident,
-    let,
-    eq,
-    plus,
-    star,
-    minus,
-    fslash,
-    open_curly,
-    close_curly,
-    if_,
-    elif,
-    else_,
+    exit,       //return
+    int_lit,    //int
+    semi,       //;
+    open_paren, //(
+    close_paren,//)
+    ident,      //variable
+    let,        //declaration
+    eq,         //=
+    plus,       //+
+    star,       //-
+    minus,      //-
+    fslash,     // /
+    open_curly, // {
+    close_curly,// }
+    if_,        // if
+    elif,       // elif
+    else_,      // else
 };
 
 inline std::string to_string(const TokenType type)
@@ -61,10 +62,10 @@ inline std::string to_string(const TokenType type)
         case TokenType::else_:
             return "`else`";
     }
-    assert(false);
+    assert(false);      //throws error when an unidentified type is passed
 }
 
-inline std::optional<int> bin_prec(const TokenType type)
+inline std::optional<int> bin_prec(const TokenType type)        //operation precedence
 {
     switch (type) {
         case TokenType::minus:
@@ -76,75 +77,75 @@ inline std::optional<int> bin_prec(const TokenType type)
         case TokenType::star:
             return 2;
         default:
-            return {};
+            return {};          //NULL
     }
 }
 
 struct Token {
-    TokenType type;
-    int line;
-    std::optional<std::string> value {};
+    TokenType type;     //int, if, elif,
+    int line;           //error handling
+    std::optional<std::string> value {};        //int = 'value'
 };
 
 class Tokenizer {
 public:
-    explicit Tokenizer(std::string src)
-            : m_src(std::move(src))
+    explicit Tokenizer(std::string src)     //constructor where src is code
+            : m_src(std::move(src))         //m_src is a data member of Tokenizer, and we move code to m_src
     {
     }
 
-    std::vector<Token> tokenize()
+    std::vector<Token> tokenize()           //list of tokens within the code
     {
-        std::vector<Token> tokens;
-        std::string buf;
+        std::vector<Token> tokens;          //vector initialization
+        std::string buf;                    //string to read multi-character token
         int line_count = 1;
-        while (peek().has_value()) {
-            if (std::isalpha(peek().value())) {
-                buf.push_back(consume());
-                while (peek().has_value() && std::isalnum(peek().value())) {
-                    buf.push_back(consume());
+        while (peek().has_value()) {        //until we reach the end of code
+            if (std::isalpha(peek().value())) {         //if it is an alphabet: keyword or identifier
+                buf.push_back(consume());               //move cursor forward by 1
+                while (peek().has_value() && std::isalnum(peek().value())) {    //checks whether it is an alphabet or number
+                    buf.push_back(consume());                                //if it encounters whitespace, exit the loop
                 }
-                if (buf == "return") {
+                if (buf == "return") {      //check for return keyword
                     tokens.push_back({ TokenType::exit, line_count });
                     buf.clear();
                 }
-                else if (buf == "let") {
+                else if (buf == "let") {    //check for let keyword
                     tokens.push_back({ TokenType::let, line_count });
                     buf.clear();
                 }
-                else if (buf == "if") {
+                else if (buf == "if") {     //check for if keyword
                     tokens.push_back({ TokenType::if_, line_count });
                     buf.clear();
                 }
-                else if (buf == "elif") {
+                else if (buf == "elif") {   //checks for elif
                     tokens.push_back({ TokenType::elif, line_count });
                     buf.clear();
                 }
-                else if (buf == "else") {
+                else if (buf == "else") {   //check for else keyword
                     tokens.push_back({ TokenType::else_, line_count });
                     buf.clear();
                 }
-                else {
-                    tokens.push_back({ TokenType::ident, line_count, buf });
+                else {                      //if none of above, then identifier
+                    tokens.push_back({ TokenType::ident, line_count, buf });        //value because identifier has a name(value)
                     buf.clear();
                 }
             }
             else if (std::isdigit(peek().value())) {
                 buf.push_back(consume());
-                while (peek().has_value() && std::isdigit(peek().value())) {
+                while (peek().has_value() && std::isdigit(peek().value())) {        //checks if there are succeeding numbers
                     buf.push_back(consume());
                 }
-                tokens.push_back({ TokenType::int_lit, line_count, buf });
+                tokens.push_back({ TokenType::int_lit, line_count, buf });          //value here is literally the integer value
                 buf.clear();
             }
-            else if (peek().value() == '/' && peek(1).has_value() && peek(1).value() == '/') {
-                consume();
+            else if (peek().value() == '/' && peek(1).has_value() && peek(1).value() == '/') {      //single line comment
+                consume();      //returning something, not being stored, but no error
                 consume();
                 while (peek().has_value() && peek().value() != '\n') {
                     consume();
                 }
             }
-            else if (peek().value() == '/' && peek(1).has_value() && peek(1).value() == '*') {
+            else if (peek().value() == '/' && peek(1).has_value() && peek(1).value() == '*') {      //multi-line comment
                 consume();
                 consume();
                 while (peek().has_value()) {
@@ -217,7 +218,7 @@ public:
     }
 
 private:
-    [[nodiscard]] std::optional<char> peek(const size_t offset = 0) const
+    [[nodiscard]] std::optional<char> peek(const size_t offset = 0) const       //reads character at cursor location, and the return value has to be used without fail
     {
         if (m_index + offset >= m_src.length()) {
             return {};
@@ -225,7 +226,7 @@ private:
         return m_src.at(m_index + offset);
     }
 
-    char consume()
+    char consume()          //return character at cursor and then move the cursor forward by 1
     {
         return m_src.at(m_index++);
     }

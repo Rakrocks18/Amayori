@@ -7,14 +7,14 @@
 class ArenaAllocator {
 public:
     explicit ArenaAllocator(const size_t max_num_bytes)
-            : m_size { max_num_bytes }
-            , m_buffer { new std::byte[max_num_bytes] }
-            , m_offset { m_buffer }
+            : m_size { max_num_bytes }          //space size to be alloted
+            , m_buffer { new std::byte[max_num_bytes] }     //space gets alloted
+            , m_offset { m_buffer }             //keeps track of individual nodes when called
     {
     }
 
-    ArenaAllocator(const ArenaAllocator&) = delete;
-    ArenaAllocator& operator=(const ArenaAllocator&) = delete;
+    ArenaAllocator(const ArenaAllocator&) = delete;     //move constructor
+    ArenaAllocator& operator=(const ArenaAllocator&) = delete;      //move constructor
 
     ArenaAllocator(ArenaAllocator&& other) noexcept
             : m_size { std::exchange(other.m_size, 0) }
@@ -23,7 +23,7 @@ public:
     {
     }
 
-    ArenaAllocator& operator=(ArenaAllocator&& other) noexcept
+    ArenaAllocator& operator=(ArenaAllocator&& other) noexcept      //other.data moves to own, and other.data becomes 0
     {
         std::swap(m_size, other.m_size);
         std::swap(m_buffer, other.m_buffer);
@@ -34,13 +34,13 @@ public:
     template <typename T>
     [[nodiscard]] T* alloc()
     {
-        size_t remaining_num_bytes = m_size - static_cast<size_t>(m_offset - m_buffer);
-        auto pointer = static_cast<void*>(m_offset);
+        size_t remaining_num_bytes = m_size - static_cast<size_t>(m_offset - m_buffer); //giving the remaining free space left in the arena
+        auto pointer = static_cast<void*>(m_offset);        //void pointer because the struct type changes everytime
         const auto aligned_address = std::align(alignof(T), sizeof(T), pointer, remaining_num_bytes);
-        if (aligned_address == nullptr) {
+        if (aligned_address == nullptr) {       //memory allocated is completely consumed
             throw std::bad_alloc {};
         }
-        m_offset = static_cast<std::byte*>(aligned_address) + sizeof(T);
+        m_offset = static_cast<std::byte*>(aligned_address) + sizeof(T);        //move offset forward
         return static_cast<T*>(aligned_address);
     }
 

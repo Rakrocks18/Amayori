@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cassert>
-#include <variant>
+#include <variant>      //the value must be within the option which have been specified during declaration
 
 #include "arena.hpp"
 #include "tokenization.hpp"
@@ -119,13 +119,13 @@ public:
     std::optional<NodeTerm*> parse_term() // NOLINT(*-no-recursion)
     {
         if (auto int_lit = try_consume(TokenType::int_lit)) {
-            auto term_int_lit = m_allocator.emplace<NodeTermIntLit>(int_lit.value());
-            auto term = m_allocator.emplace<NodeTerm>(term_int_lit);
+            auto term_int_lit = m_allocator.emplace<NodeTermIntLit>(int_lit.value()); //allocate space and move token to nodeInt
+            auto term = m_allocator.emplace<NodeTerm>(term_int_lit);        //allocate space and move nodeInt to NodeTerm
             return term;
         }
         if (auto ident = try_consume(TokenType::ident)) {
-            auto expr_ident = m_allocator.emplace<NodeTermIdent>(ident.value());
-            auto term = m_allocator.emplace<NodeTerm>(expr_ident);
+            auto expr_ident = m_allocator.emplace<NodeTermIdent>(ident.value()); //allocate space and move token to nodeIdent
+            auto term = m_allocator.emplace<NodeTerm>(expr_ident);                  //allocate space and move nodeIdent to NodeTerm
             return term;
         }
         if (const auto open_paren = try_consume(TokenType::open_paren)) {
