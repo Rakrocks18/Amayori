@@ -1,26 +1,38 @@
 $$
 \begin{align}
-[\text{Prog}] &\to [\text{Stmt}]^*
-\\
+[\text{Prog}] &\to [\text{Stmt}]^* \\
 [\text{Stmt}] &\to
 \begin{cases}
-\text{return}(\text{[Expr]})\\
-\text{let} \space \text{ident} = [\text{Expr}]
-\end{cases}
-
-\\
+\text{exit}([\text{Expr}]); \\
+\text{let}\space\text{ident} = [\text{Expr}]; \\
+\text{ident} = \text{[Expr]}; \\
+\text{if} ([\text{Expr}])[\text{Scope}]\text{[IfPred]}\\
+[\text{Scope}]
+\end{cases} \\
+\text{[Scope]} &\to \{[\text{Stmt}]^*\} \\
+\text{[IfPred]} &\to
+\begin{cases}
+\text{elif}(\text{[Expr]})\text{[Scope]}\text{[IfPred]} \\
+\text{else}\text{[Scope]} \\
+\epsilon \\
+\end{cases} \\
 [\text{Expr}] &\to
 \begin{cases}
-\text{int} \\
-\text{ident} \\
-\text{[BinaryExpr]}
-\end{cases}
-\\
-[\text{BinaryExpr}] &\to
+[\text{Term}] \\
+[\text{BinExpr}]
+\end{cases} \\
+[\text{BinExpr}] &\to
 \begin{cases}
-[\text{Expr}] / [\text{Expr}] & \text{prec} = 3\\
-[\text{Expr}] * [\text{Expr}] & \text{prec} = 2\\    [\text{Expr}] + [\text{Expr}] & \text{prec} = 1\\
-[\text{Expr}] - [\text{Expr}] & \text{prec} = 0\\    
+[\text{Expr}] * [\text{Expr}] & \text{prec} = 1 \\
+[\text{Expr}] / [\text{Expr}] & \text{prec} = 1 \\
+[\text{Expr}] + [\text{Expr}] & \text{prec} = 0 \\
+[\text{Expr}] - [\text{Expr}] & \text{prec} = 0 \\
+\end{cases} \\
+[\text{Term}] &\to
+\begin{cases}
+\text{int\_lit} \\
+\text{ident} \\
+([\text{Expr}])
 \end{cases}
 \end{align}
 $$
