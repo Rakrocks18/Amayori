@@ -27,7 +27,7 @@ inline std::string to_string(const TokenType type)
 {
     switch (type) {
         case TokenType::exit:
-            return "`exit`";
+            return "`return`";
         case TokenType::int_lit:
             return "int literal";
         case TokenType::semi:
@@ -68,11 +68,13 @@ inline std::optional<int> bin_prec(const TokenType type)
 {
     switch (type) {
         case TokenType::minus:
-        case TokenType::plus:
             return 0;
-        case TokenType::fslash:
-        case TokenType::star:
+        case TokenType::plus:
             return 1;
+        case TokenType::fslash:
+            return 3;
+        case TokenType::star:
+            return 2;
         default:
             return {};
     }
@@ -102,7 +104,7 @@ public:
                 while (peek().has_value() && std::isalnum(peek().value())) {
                     buf.push_back(consume());
                 }
-                if (buf == "exit") {
+                if (buf == "return") {
                     tokens.push_back({ TokenType::exit, line_count });
                     buf.clear();
                 }
