@@ -1,0 +1,3 @@
+/home/rakshit_shah/amayori/build/CMakeFiles/amayori.dir
+/home/rakshit_shah/amayori/build/CMakeFiles/edit_cache.dir
+/home/rakshit_shah/amayori/build/CMakeFiles/rebuild_cache.dir
